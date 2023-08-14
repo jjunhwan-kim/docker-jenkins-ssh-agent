@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  jenkins:
+    build:
+      context: ./jenkins
+    image: myjenkins/jenkins:2.401.3-lts-jdk11
+    restart: on-failure
+    ports:
+      - "8081:8080"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    networks:
+      - jenkins-net
+
+  agent:
+    build:
+      context: ./agent
+    image: myjenkins/ssh-agent:bullseye-jdk11
+    restart: on-failure
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=ssh_pub_key
+    networks:
+      - jenkins-net
+    depends_on:
+      - jenkins
+
+networks:
+  jenkins-net:
+
+volumes:
+  jenkins-data:
